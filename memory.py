@@ -31,3 +31,9 @@ def get_recent_turns(limit: int = 12) -> List[Tuple[str, str]]:
             (limit,)
         ).fetchall()
     return list(reversed(rows))
+
+
+def clear_memory() -> None:
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute("DELETE FROM turns")
+        conn.commit()

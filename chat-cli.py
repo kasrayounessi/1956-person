@@ -1,6 +1,6 @@
 import json
 import requests
-from memory import init_db, add_turn, get_recent_turns
+from memory import init_db, add_turn, get_recent_turns, clear_memory
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL = "llama3.1:8b"
@@ -10,6 +10,7 @@ def era_check_and_rewrite(persona: str, user: str, assistant: str) -> str:
     check_prompt = f"""{persona}
 
 You are performing a strict compliance check.
+
 Task:
 1) Determine if the Assistant answer contains any post-1956 knowledge, modern technology, or anachronistic language.
 2) If it violates, rewrite it to be fully consistent with 1956 knowledge and speech.
@@ -46,10 +47,10 @@ def ask(prompt: str) -> str:
 
 def main():
     persona = load_persona("persona-1956.txt")
-    init_db()
     with open("character.json", "r") as f:
         character = json.load(f)
         character_block = json.dumps(character, indent=2)
+    init_db()
     print("1956 Agent CLI. Type 'exit' to quit.\n")
 
     recent = get_recent_turns(limit=12)
@@ -59,6 +60,11 @@ def main():
         user = input("You: ").strip()
         if user.lower() in {"exit", "quit"}:
             break
+
+        if user.lower() == "/reset":
+            clear_memory()
+            print("\n(Memory cleared.)\n")
+            continue
 
         prompt = f"""{persona}
 
